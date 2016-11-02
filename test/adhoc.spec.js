@@ -4,7 +4,7 @@ var sinon = require('sinon');
 
 var sinonChai = require("sinon-chai");
 var chaiAsPromised = require('chai-as-promised');
-var process = require('child_process');
+var cp = require('child_process');
 var mockSpawn = require('mock-spawn');
 
 chai.use(sinonChai);
@@ -13,13 +13,13 @@ chai.use(chaiAsPromised);
 describe('AdHoc command', function() {
 
   var mySpawn = mockSpawn();
-  var oldSpawn = process.spawn;
+  var oldSpawn = cp.spawn;
   var spawnSpy;
   var default_env = { env: { PYTHONUNBUFFERED: "1" } };
 
   before(function() {
-    process.spawn = mySpawn;
-    spawnSpy = sinon.spy(process, 'spawn');
+    cp.spawn = mySpawn;
+    spawnSpy = sinon.spy(cp, 'spawn');
   })
 
   beforeEach(function() {
@@ -35,7 +35,7 @@ describe('AdHoc command', function() {
       expect(command.exec()).to.be.fulfilled.then(function() {
         expect(spawnSpy).to.be.calledWith('ansible', ['local', '-m', 'shell', '-a', 'echo \'hello\'']);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -75,7 +75,7 @@ describe('AdHoc command', function() {
       expect(command.exec()).to.be.fulfilled.then(function() {
         expect(spawnSpy).to.be.calledWith('ansible', ['local', '-m', 'shell', '-a', 'echo \'hello\'', '-f', 10]);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -86,7 +86,7 @@ describe('AdHoc command', function() {
       expect(command.exec()).to.be.fulfilled.then(function() {
         expect(spawnSpy).to.be.calledWith('ansible', ['local', '-m', 'shell', '-a', 'echo \'hello\'', '-vvv']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -97,7 +97,7 @@ describe('AdHoc command', function() {
       expect(command.exec()).to.be.fulfilled.then(function() {
         expect(spawnSpy).to.be.calledWith('ansible', ['local', '-m', 'shell', '-a', 'echo \'hello\'', '-u', 'root']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -108,7 +108,7 @@ describe('AdHoc command', function() {
       expect(command.exec()).to.be.fulfilled.then(function() {
         expect(spawnSpy).to.be.calledWith('ansible', ['local', '-m', 'shell', '-a', 'echo \'hello\'', '-s']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -119,7 +119,7 @@ describe('AdHoc command', function() {
       expect(command.exec()).to.be.fulfilled.then(function() {
         expect(spawnSpy).to.be.calledWith('ansible', ['local', '-m', 'shell', '-a', 'echo \'hello\'', '-U', 'root']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -130,7 +130,7 @@ describe('AdHoc command', function() {
       expect(command.exec()).to.be.fulfilled.then(function() {
         expect(spawnSpy).to.be.calledWith('ansible', ['local', '-m', 'shell', '-a', 'echo \'hello\'', '-i', '/etc/my/hosts']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 

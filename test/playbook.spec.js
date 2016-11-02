@@ -5,7 +5,7 @@ var _ = require('underscore');
 
 var sinonChai = require("sinon-chai");
 var chaiAsPromised = require('chai-as-promised');
-var process = require('child_process');
+var cp = require('child_process');
 var mockSpawn = require('mock-spawn');
 
 chai.use(sinonChai);
@@ -14,14 +14,14 @@ chai.use(chaiAsPromised);
 describe('Playbook command', function () {
 
   var mySpawn = mockSpawn();
-  var oldSpawn = process.spawn;
+  var oldSpawn = cp.spawn;
   var spawnSpy;
   var default_env = { env: { PYTHONUNBUFFERED: "1" } };
 
 
   before(function () {
-    process.spawn = mySpawn;
-    spawnSpy = sinon.spy(process, 'spawn');
+    cp.spawn = mySpawn;
+    spawnSpy = sinon.spy(cp, 'spawn');
   })
 
   beforeEach(function() {
@@ -37,33 +37,33 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml'] );
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
 
   describe('with variables', function () {
-    
+
     it('should execute the playbook with the given variables', function (done) {
       var command = new Playbook().playbook('test').variables({foo: "bar"});
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '-e', '{"foo":"bar"}']);
         done();
-      }).done();
+      }).catch(done);
     })
 
     it('should execute the playbook with the given complex variables', function (done) {
-      variable = { 
+      variable = {
         foo: {
           bar: ["shu"]
-        } 
+        }
       };
       var command = new Playbook().playbook('test').variables(variable);
 
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '-e', '{"foo":{"bar":["shu"]}}']);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -75,7 +75,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '-f', 10]);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -87,7 +87,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '-vv']);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -99,7 +99,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '-u', 'root']);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -111,7 +111,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '-U', 'root']);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -123,7 +123,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '-s']);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -135,7 +135,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook' ,['test.yml', '-i', '/etc/my/hosts']);
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -154,7 +154,7 @@ describe('Playbook command', function () {
         expect(spawnSpy.getCall(0).args[2]).to.have.deep.property( "cwd", workingDir );
         expect(spawnSpy.getCall(0).args[2]).to.have.deep.property( "env.PYTHONUNBUFFERED", "1" );
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -168,7 +168,7 @@ describe('Playbook command', function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml']);
         expect(spawnSpy.getCall(0).args[2]).to.have.deep.property( "env.PYTHONUNBUFFERED", "1" );
         done();
-      }).done();
+      }).catch(done);
     })
 
     it('should turn on buffering when told to', function (done) {
@@ -178,7 +178,7 @@ describe('Playbook command', function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml'] );
         expect(spawnSpy.getCall(0).args[2]).to.have.deep.property( 'env.PYTHONUNBUFFERED', "" );
         done();
-      }).done();
+      }).catch(done);
     })
 
   })
@@ -190,7 +190,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '--ask-pass']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -202,7 +202,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '--ask-sudo-pass']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -214,25 +214,25 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', "--tags=onetag"]);
         done();
-      }).done();
+      }).catch(done);
     })
-  
+
     it('should execute the playbook with multiple --tags', function (done) {
       var command = new Playbook().playbook('test').tags('onetag','twotags');
-  
+
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', "--tags=onetag,twotags"]);
         done();
-      }).done();
+      }).catch(done);
     })
- 
+
     it('should execute the playbook with array of --tags', function (done) {
       var command = new Playbook().playbook('test').tags(['onetag','twotags']);
- 
+
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', "--tags=onetag,twotags"]);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
@@ -244,7 +244,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '--skip-tags=onetag']);
         done();
-      }).done();
+      }).catch(done);
     })
 
     it('should execute the playbook with multiple --skip-tags', function (done) {
@@ -253,7 +253,7 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '--skip-tags=onetag,twotags']);
         done();
-      }).done();
+      }).catch(done);
     })
 
     it('should execute the playbook with array of --skip-tags', function (done) {
@@ -262,12 +262,12 @@ describe('Playbook command', function () {
       expect(command.exec()).to.be.fulfilled.then(function () {
         expect(spawnSpy).to.be.calledWith('ansible-playbook', ['test.yml', '--skip-tags=one tag,twotags']);
         done();
-      }).done();
+      }).catch(done);
     })
   })
 
   after(function () {
-    process.spawn = oldSpawn;
+    cp.spawn = oldSpawn;
     spawnSpy.restore();
   })
 
